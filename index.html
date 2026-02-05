@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAC Communication App - Core Words & Typing</title>
+    <meta name="description" content="Comprehensive AAC (Augmentative and Alternative Communication) app with core words, phrases, typing keyboard, and bilingual support in English and Hindi">
+    <meta name="keywords" content="AAC, communication, speech therapy, core words, typing, English, Hindi">
+    <meta name="author" content="Shabana Tariq - Speech Language Therapist">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .language-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .lang-btn {
+            padding: 8px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Quick Phrases Bar */
+        .quick-phrases {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-bottom: 3px solid #ffc107;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .quick-phrases h3 {
+            font-size: 14px;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .phrase-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 0 5px 5px 0;
+            background: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .phrase-btn:hover {
+            background: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .sentence-bar {
+            background: #fff;
+            padding: 15px;
+            border-bottom: 3px solid #667eea;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .sentence-word {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f4ff;
+            padding: 8px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 70px;
+        }
+
+        .sentence-word:hover {
+            background: #e0e8ff;
+            transform: translateY(-2px);
+        }
+
+        .sentence-word.core-word {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+
+        .sentence-word.typed-word {
+            border-color: #17a2b8;
+            background: #e7f6f8;
+        }
+
+        /* Sentence bar color coding */
+        .sentence-word.color-yellow {
+            border-color: #ffd700;
+            background: #fffef0;
+        }
+
+        .sentence-word.color-blue {
+            border-color: #4169e1;
+            background: #f0f4ff;
+        }
+
+        .sentence-word.color-green {
+            border-color: #32cd32;
+            background: #f0fff0;
+        }
+
+        .sentence-word.color-purple {
+            border-color: #9370db;
+            background: #f8f0ff;
+        }
+
+        .sentence-word.color-orange {
+            border-color: #ff8c00;
+            background: #fff8f0;
+        }
+
+        .sentence-word.color-brown {
+            border-color: #8b4513;
+            background: #faf5f0;
+        }
+
+        .sentence-word.color-red {
+            border-color: #ff6b6b;
+            background: #fff0f0;
+        }
+
+        .sentence-word.color-white {
+            border-color: #d3d3d3;
+            background: #ffffff;
+        }
+
+        .sentence-word .emoji {
+            font-size: 35px;
+            margin-bottom: 3px;
+        }
+
+        .sentence-word span {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .speak-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .speak-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .backspace-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .backspace-btn:hover {
+            background: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            gap: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 13px;
+        }
+
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .category-btn.core {
+            background: #28a745;
+            color: white;
+        }
+
+        .category-btn.core.active {
+            background: #1e7e34;
+        }
+
+        .category-btn.keyboard {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .category-btn.keyboard.active {
+            background: #138496;
+        }
+
+        .search-bar {
+            padding: 12px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .symbols-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+            padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .symbol-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .symbol-card.core {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        /* AAC Color Coding Standards */
+        .symbol-card.color-yellow {
+            border-color: #ffd700;
+            background: #fffef0;
+        }
+
+        .symbol-card.color-blue {
+            border-color: #4169e1;
+            background: #f0f4ff;
+        }
+
+        .symbol-card.color-green {
+            border-color: #32cd32;
+            background: #f0fff0;
+        }
+
+        .symbol-card.color-purple {
+            border-color: #9370db;
+            background: #f8f0ff;
+        }
+
+        .symbol-card.color-orange {
+            border-color: #ff8c00;
+            background: #fff8f0;
+        }
+
+        .symbol-card.color-brown {
+            border-color: #8b4513;
+            background: #faf5f0;
+        }
+
+        .symbol-card.color-red {
+            border-color: #ff6b6b;
+            background: #fff0f0;
+        }
+
+        .symbol-card.color-white {
+            border-color: #d3d3d3;
+            background: #ffffff;
+        }
+
+        .symbol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .symbol-card.color-yellow:hover {
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .symbol-card.color-blue:hover {
+            box-shadow: 0 5px 15px rgba(65, 105, 225, 0.4);
+        }
+
+        .symbol-card.color-green:hover {
+            box-shadow: 0 5px 15px rgba(50, 205, 50, 0.4);
+        }
+
+        .symbol-card.color-purple:hover {
+            box-shadow: 0 5px 15px rgba(147, 112, 219, 0.4);
+        }
+
+        .symbol-card.color-orange:hover {
+            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+        }
+
+        .symbol-card.color-brown:hover {
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4);
+        }
+
+        .symbol-card.color-red:hover {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .symbol-card.core:hover {
+            border-color: #28a745;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .symbol-card:active {
+            transform: scale(0.95);
+        }
+
+        .symbol-card .emoji {
+            font-size: 45px;
+            margin-bottom: 8px;
+        }
+
+        .symbol-card img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        .symbol-card .text {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+
+        .symbol-card .translation {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .core-badge {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            background: #28a745;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* Keyboard Styles */
+        .keyboard-container {
+            padding: 15px;
+            background: #f8f9fa;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .typing-input-container {
+            margin-bottom: 15px;
+        }
+
+        .typing-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #17a2b8;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .typing-input:focus {
+            outline: none;
+            border-color: #138496;
+        }
+
+        .keyboard-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+            justify-content: center;
+        }
+
+        .key {
+            padding: 12px;
+            min-width: 45px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .key:hover {
+            background: #17a2b8;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .key:active {
+            transform: scale(0.95);
+        }
+
+        .key.space {
+            min-width: 200px;
+        }
+
+        .key.backspace,
+        .key.enter {
+            min-width: 80px;
+            background: #ffc107;
+        }
+
+        .key.backspace:hover,
+        .key.enter:hover {
+            background: #e0a800;
+        }
+
+        .key.shift {
+            min-width: 70px;
+            background: #6c757d;
+            color: white;
+        }
+
+        .key.shift.active {
+            background: #28a745;
+        }
+
+        .hindi-key {
+            font-size: 18px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 3% auto;
+            padding: 25px;
+            border: none;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .setting-group {
+            margin-bottom: 18px;
+        }
+
+        .setting-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .setting-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .setting-group input[type="range"]::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .setting-group input[type="text"],
+        .setting-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .setting-group input[type="text"]:focus,
+        .setting-group select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .value-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: all 0.3s;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #218838;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #5a6268;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            font-size: 50px;
+            background: #f8f9fa;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .file-input-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .file-input-btn:hover {
+            background: #5568d3;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .edit-delete-btn {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+            padding: 0;
+            line-height: 22px;
+        }
+
+        .symbol-card:hover .edit-delete-btn {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .symbols-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 10px;
+            }
+
+            .symbol-card .emoji {
+                font-size: 35px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .control-btn {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+
+            .key {
+                padding: 10px;
+                min-width: 35px;
+                font-size: 14px;
+            }
+
+            .key.space {
+                min-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AAC Communication App - Core Words & Typing</h1>
+            <p>Developed by Shabana Tariq - Speech Language Therapist</p>
+            <div class="stats">
+                📚 Total Words: <span id="wordCount">0</span> | ⭐ Core Words: <span id="coreCount">0</span> | 📁 Categories: <span id="categoryCount">0</span>
+            </div>
+        </div>
+
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="setLanguage('english')">English</button>
+            <button class="lang-btn" onclick="setLanguage('hindi')">हिंदी (Hindi)</button>
+        </div>
+
+        <!-- Quick Phrases Section -->
+        <div class="quick-phrases">
+            <h3>⚡ Quick Phrases / त्वरित वाक्यांश</h3>
+            <div id="quickPhrases">
+                <!-- Phrases will be populated here -->
+            </div>
+        </div>
+
+        <div class="sentence-bar" id="sentenceBar">
+            <p style="color: #999; font-style: italic; font-size: 14px;">Tap symbols or type to build a sentence...</p>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn speak-btn" onclick="speakSentence()">🔊 Speak</button>
+            <button class="control-btn backspace-btn" onclick="removeLastWord()">⌫ Delete</button>
+            <button class="control-btn clear-btn" onclick="clearSentence()">🗑️ Clear</button>
+            <button class="control-btn" style="background: #17a2b8; color: white;" onclick="openVoiceSettings()">🎙️ Voice</button>
+            <button class="control-btn" style="background: #6f42c1; color: white;" onclick="openAddSymbol()">➕ Add</button>
+            <button class="control-btn" style="background: #fd7e14; color: white;" onclick="toggleColorCoding()">🎨 <span id="colorToggleText">Show Colors</span></button>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search words..." oninput="searchSymbols()">
+        </div>
+
+        <!-- Color Legend -->
+        <div id="colorLegend" style="display: none; padding: 10px 15px; background: #f8f9fa; border-bottom: 2px solid #e9ecef; font-size: 12px;">
+            <strong>Color Code:</strong>
+            <span style="margin-left: 10px;">🟨 Core Words</span>
+            <span style="margin-left: 10px;">🟦 Nouns</span>
+            <span style="margin-left: 10px;">🟩 Verbs</span>
+            <span style="margin-left: 10px;">🟪 Descriptors</span>
+            <span style="margin-left: 10px;">🟧 Prepositions</span>
+            <span style="margin-left: 10px;">🟫 Questions</span>
+            <span style="margin-left: 10px;">🟥 Feelings</span>
+            <span style="margin-left: 10px;">⬜ Social</span>
+        </div>
+
+        <div class="categories" id="categories">
+            <!-- Categories will be populated here -->
+        </div>
+
+        <div id="contentArea">
+            <div class="symbols-grid" id="symbolsGrid">
+                <!-- Symbols will be populated here -->
+            </div>
+            
+            <div class="keyboard-container" id="keyboardContainer" style="display: none;">
+                <!-- Keyboard will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Settings Modal -->
+    <div id="voiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeVoiceSettings()">&times;</span>
+            <h2>🎙️ Voice Settings</h2>
+            
+            <div class="setting-group">
+                <label>Speed: <span class="value-display" id="rateValue">0.9</span></label>
+                <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="0.9" oninput="updateVoiceValue('rate')">
+            </div>
+            
+            <div class="setting-group">
+                <label>Pitch: <span class="value-display" id="pitchValue">1.0</span></label>
+                <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1.0" oninput="updateVoiceValue('pitch')">
+            </div>
+            
+            <div class="setting-group">
+                <label>Volume: <span class="value-display" id="volumeValue">1.0</span></label>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1.0" oninput="updateVoiceValue('volume')">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="modal-btn save-btn" onclick="testVoice()">🔊 Test Voice</button>
+                <button class="modal-btn save-btn" onclick="closeVoiceSettings()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Symbol Modal -->
+    <div id="addSymbolModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddSymbol()">&times;</span>
+            <h2>➕ Add New Symbol</h2>
+            
+            <div class="setting-group">
+                <label>Category:</label>
+                <select id="newCategory">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="isCoreWord"> Mark as Core Word
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <label>English Text:</label>
+                <input type="text" id="englishText" placeholder="Enter English word">
+            </div>
+            
+            <div class="setting-group">
+                <label>Hindi Text (हिंदी):</label>
+                <input type="text" id="hindiText" placeholder="हिंदी शब्द दर्ज करें">
+            </div>
+            
+            <div class="setting-group">
+                <label>Symbol/Image:</label>
+                <div class="image-preview" id="imagePreview">
+                    <span>📷</span>
+                </div>
+                <label for="imageUpload" class="file-input-btn">Choose Image</label>
+                <input type="file" id="imageUpload" accept="image/*" onchange="previewImage()">
+                <input type="text" id="emojiText" placeholder="Or type emoji (e.g., 😊)" style="margin-top: 10px;">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="modal-btn save-btn" onclick="saveNewSymbol()">💾 Save</button>
+                <button class="modal-btn cancel-btn" onclick="closeAddSymbol()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
